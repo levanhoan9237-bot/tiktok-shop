@@ -745,7 +745,7 @@ function updateAuthUI() {
   }
 
   const isStaffAuthorized = localStorage.getItem("is_staff_admin_authorized") === "true";
-  const isAdminRole = currentUser && currentUser.role === "admin";
+  const isCustomerRole = currentUser && currentUser.role === "customer";
 
   if (currentUser) {
     userDisplayName.innerText = currentUser.fullName || currentUser.username;
@@ -753,12 +753,14 @@ function updateAuthUI() {
     userDisplayName.innerText = "Đăng Nhập / Đăng Ký";
   }
 
-  // NẾU CÓ QUYỀN ADMIN (hoặc mở bằng link bí mật, hoặc đăng nhập admin):
+  // NÚT ADMIN:
+  // - Nếu là khách hàng đăng ký (role == customer) -> ẨN ĐI
+  // - Mặc định cho chủ web hoặc có quyền link bí mật -> HIỆN LÊN RÕ RÀNG
   if (adminBtn) {
-    if (isAdminRole || isStaffAuthorized) {
-      adminBtn.style.display = "inline-flex";
-    } else {
+    if (isCustomerRole && !isStaffAuthorized) {
       adminBtn.style.display = "none";
+    } else {
+      adminBtn.style.display = "inline-flex";
     }
   }
 }
