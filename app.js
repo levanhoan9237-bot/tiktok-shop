@@ -734,33 +734,30 @@ function updateAuthUI() {
   const adminBtn = document.getElementById("adminBtn");
   const userDisplayName = document.getElementById("userDisplayName");
 
-  // Kiểm tra tham số bí mật trên link: ?admin=secret_admin_hoan hoặc ?admin=true
+  // Kiểm tra tham số bí mật trên link: ?admin=hoan_admin hoặc ?admin=true
   const urlParams = new URLSearchParams(window.location.search);
-  const hasAdminKeyInUrl = urlParams.get("admin") === "hoan_admin" || urlParams.get("admin") === "true";
+  const paramVal = urlParams.get("admin");
+  const hasAdminKeyInUrl = paramVal === "hoan_admin" || paramVal === "true" || paramVal === "1";
 
   if (hasAdminKeyInUrl) {
-    // Lưu quyền quản trị viên trên trình duyệt này
     localStorage.setItem("is_staff_admin_authorized", "true");
   }
 
   const isStaffAuthorized = localStorage.getItem("is_staff_admin_authorized") === "true";
+  const isAdminRole = currentUser && currentUser.role === "admin";
 
   if (currentUser) {
     userDisplayName.innerText = currentUser.fullName || currentUser.username;
-    // Chỉ hiện khi có quyền admin
-    if (currentUser.role === "admin" || isStaffAuthorized) {
-      adminBtn.style.setProperty("display", "inline-flex", "important");
-    } else {
-      adminBtn.style.setProperty("display", "none", "important"); // Khách hàng bình thường ẩn 100%
-    }
   } else {
     userDisplayName.innerText = "Đăng Nhập / Đăng Ký";
-    // Nếu khách vãng lai bình thường chưa đăng nhập -> ẨN TUYỆT ĐỐI nút Admin
-    // Trừ khi họ truy cập qua link bí mật của bạn gửi
-    if (isStaffAuthorized) {
-      adminBtn.style.setProperty("display", "inline-flex", "important");
+  }
+
+  // NẾU CÓ QUYỀN ADMIN (hoặc mở bằng link bí mật, hoặc đăng nhập admin):
+  if (adminBtn) {
+    if (isAdminRole || isStaffAuthorized) {
+      adminBtn.style.display = "inline-flex";
     } else {
-      adminBtn.style.setProperty("display", "none", "important");
+      adminBtn.style.display = "none";
     }
   }
 }
@@ -814,6 +811,9 @@ function handleAuthSubmit(e) {
     }
     currentUser = user;
     localStorage.setItem("current_logged_user", JSON.stringify(currentUser));
+    if (user.role === "admin") {
+      localStorage.setItem("is_staff_admin_authorized", "true");
+    }
     alert(`Xin chào ${user.fullName || user.username}! Đăng nhập thành công.`);
   } else {
     // Đăng ký tài khoản khách hàng mới

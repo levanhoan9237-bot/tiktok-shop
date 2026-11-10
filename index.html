@@ -20,12 +20,12 @@
         <span>TikTok<span class="highlight">Store</span></span>
       </div>
       <div class="nav-contact">
-        <!-- Nút Admin: MẶC ĐỊNH ẨN HOÀN TOÀN (Người dùng bình thường tuyệt đối không nhìn thấy) -->
-        <button id="adminBtn" class="cart-btn admin-nav-btn" style="display: none !important;">
+        <!-- Nút Admin: Hiển thị linh hoạt theo quyền -->
+        <button id="adminBtn" class="cart-btn admin-nav-btn" style="display: none;" onclick="openAdminModal()">
           <i class="fa-solid fa-user-shield"></i> Quản Trị (Admin)
         </button>
 
-        <!-- Nút Đăng nhập / Đăng ký tài khoản người mua -->
+        <!-- Nút Đăng nhập / Đăng ký tài khoản -->
         <div id="userAuthContainer">
           <button id="authBtn" class="cart-btn auth-nav-btn" onclick="openAuthModal()">
             <i class="fa-solid fa-user"></i> <span id="userDisplayName">Đăng Nhập / Đăng Ký</span>
