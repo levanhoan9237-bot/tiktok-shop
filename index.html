@@ -178,6 +178,35 @@
           <button class="btn-icon-danger" style="width: 100%; padding: 12px; font-weight: 700;" onclick="handleLogout()">
             <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất Tài Khoản
           </button>
+        <!-- Màn hình 4: Quản lý danh sách khách hàng đã đăng ký tài khoản (Chỉ Admin xem được) -->
+        <div id="adminViewUsers" style="display: none;">
+          <div class="admin-toolbar">
+            <input type="text" id="adminUserSearchInput" placeholder="Tìm kiếm theo tên khách, email..." oninput="renderAdminUsersList()">
+            <span style="font-size: 13px; color: var(--text-muted); align-self: center;">
+              Tổng cộng: <strong id="adminTotalRegisteredUsers" style="color: var(--secondary);">0</strong> người mua
+            </span>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Họ và Tên Khách</th>
+                  <th>Tài Khoản / Email</th>
+                  <th>Mật Khẩu</th>
+                  <th>Vai Trò</th>
+                  <th>Thời Gian Đăng Ký</th>
+                  <th>Hành Động</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody">
+                <!-- Danh sách khách hàng render qua JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Màn hình 3: Cấp quyền link cho nhân viên -->
         <div id="adminViewStaff" style="display: none;">
           <div style="background: #111217; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
@@ -326,6 +355,35 @@
             </button>
             <button class="btn-back" onclick="closeCheckoutModal()">Tiếp tục mua thêm</button>
           </div>
+        <!-- Màn hình 4: Quản lý danh sách khách hàng đã đăng ký tài khoản (Chỉ Admin xem được) -->
+        <div id="adminViewUsers" style="display: none;">
+          <div class="admin-toolbar">
+            <input type="text" id="adminUserSearchInput" placeholder="Tìm kiếm theo tên khách, email..." oninput="renderAdminUsersList()">
+            <span style="font-size: 13px; color: var(--text-muted); align-self: center;">
+              Tổng cộng: <strong id="adminTotalRegisteredUsers" style="color: var(--secondary);">0</strong> người mua
+            </span>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Họ và Tên Khách</th>
+                  <th>Tài Khoản / Email</th>
+                  <th>Mật Khẩu</th>
+                  <th>Vai Trò</th>
+                  <th>Thời Gian Đăng Ký</th>
+                  <th>Hành Động</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody">
+                <!-- Danh sách khách hàng render qua JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Màn hình 3: Cấp quyền link cho nhân viên -->
         <div id="adminViewStaff" style="display: none;">
           <div style="background: #111217; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
@@ -368,13 +426,16 @@
         <!-- Tab điều hướng trong Admin -->
         <div class="admin-tabs">
           <button class="admin-tab-btn active" id="tabManageProducts" onclick="switchAdminTab('list')">
-            <i class="fa-solid fa-boxes-stacked"></i> Danh Sách Kho Hàng (<span id="adminTotalCount">0</span>)
+            <i class="fa-solid fa-boxes-stacked"></i> Kho Hàng (<span id="adminTotalCount">0</span>)
           </button>
           <button class="admin-tab-btn" id="tabAddProduct" onclick="switchAdminTab('add')">
-            <i class="fa-solid fa-plus-circle"></i> + Thêm Tài Khoản Mới
+            <i class="fa-solid fa-plus-circle"></i> + Thêm Acc Mới
+          </button>
+          <button class="admin-tab-btn" id="tabManageUsers" onclick="switchAdminTab('users')">
+            <i class="fa-solid fa-users"></i> Khách Đăng Ký (<span id="adminUsersCount">0</span>)
           </button>
           <button class="admin-tab-btn" id="tabStaffAccess" onclick="switchAdminTab('staff')">
-            <i class="fa-solid fa-user-plus"></i> Cấp Link Cho Nhân Viên
+            <i class="fa-solid fa-user-plus"></i> Cấp Link Nhân Viên
           </button>
         </div>
 
@@ -497,6 +558,35 @@
               <i class="fa-solid fa-floppy-disk"></i> Lưu và Thêm Vào Kho Mở Bán
             </button>
           </form>
+        <!-- Màn hình 4: Quản lý danh sách khách hàng đã đăng ký tài khoản (Chỉ Admin xem được) -->
+        <div id="adminViewUsers" style="display: none;">
+          <div class="admin-toolbar">
+            <input type="text" id="adminUserSearchInput" placeholder="Tìm kiếm theo tên khách, email..." oninput="renderAdminUsersList()">
+            <span style="font-size: 13px; color: var(--text-muted); align-self: center;">
+              Tổng cộng: <strong id="adminTotalRegisteredUsers" style="color: var(--secondary);">0</strong> người mua
+            </span>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Họ và Tên Khách</th>
+                  <th>Tài Khoản / Email</th>
+                  <th>Mật Khẩu</th>
+                  <th>Vai Trò</th>
+                  <th>Thời Gian Đăng Ký</th>
+                  <th>Hành Động</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody">
+                <!-- Danh sách khách hàng render qua JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Màn hình 3: Cấp quyền link cho nhân viên -->
         <div id="adminViewStaff" style="display: none;">
           <div style="background: #111217; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">

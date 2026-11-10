@@ -826,7 +826,8 @@ function handleAuthSubmit(e) {
       username,
       password,
       fullName,
-      role: "customer" // VAI TRÒ KHÁCH MUA HÀNG (SẼ KHÔNG THẤY ADMIN)
+      role: "customer", // VAI TRÒ KHÁCH MUA HÀNG (SẼ KHÔNG THẤY ADMIN)
+      registeredAt: new Date().toLocaleString("vi-VN")
     };
     systemUsers.push(newUser);
     localStorage.setItem("tiktok_shop_users", JSON.stringify(systemUsers));
@@ -866,18 +867,87 @@ function openAdminModal() {
 function switchAdminTab(tab) {
   const isList = tab === 'list';
   const isAdd = tab === 'add';
+  const isUsers = tab === 'users';
   const isStaff = tab === 'staff';
 
   document.getElementById("tabManageProducts").className = "admin-tab-btn " + (isList ? "active" : "");
   document.getElementById("tabAddProduct").className = "admin-tab-btn " + (isAdd ? "active" : "");
+  document.getElementById("tabManageUsers").className = "admin-tab-btn " + (isUsers ? "active" : "");
   document.getElementById("tabStaffAccess").className = "admin-tab-btn " + (isStaff ? "active" : "");
 
   document.getElementById("adminViewList").style.display = isList ? "block" : "none";
   document.getElementById("adminViewAdd").style.display = isAdd ? "block" : "none";
+  document.getElementById("adminViewUsers").style.display = isUsers ? "block" : "none";
   document.getElementById("adminViewStaff").style.display = isStaff ? "block" : "none";
 
-  if (isStaff) {
+  if (isUsers) {
+    renderAdminUsersList();
+  } else if (isStaff) {
     generateStaffSecretLink();
+  }
+}
+
+// Render danh sách người dùng đăng ký (CHỈ ADMIN MỚI ĐƯỢC XEM)
+function renderAdminUsersList() {
+  const tbody = document.getElementById("adminUsersTableBody");
+  const countEl = document.getElementById("adminUsersCount");
+  const totalEl = document.getElementById("adminTotalRegisteredUsers");
+  const search = (document.getElementById("adminUserSearchInput")?.value || "").toLowerCase().trim();
+
+  // Lọc chỉ lấy khách mua hàng hoặc cả danh sách
+  const customerList = systemUsers.filter(u => u.role !== "admin" || search.includes("admin"));
+  
+  if (countEl) countEl.innerText = systemUsers.filter(u => u.role !== "admin").length;
+  if (totalEl) totalEl.innerText = systemUsers.filter(u => u.role !== "admin").length;
+
+  let filtered = systemUsers.filter(u => {
+    if (!search) return true;
+    return (u.fullName && u.fullName.toLowerCase().includes(search)) || 
+           (u.username && u.username.toLowerCase().includes(search));
+  });
+
+  tbody.innerHTML = "";
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 25px;">Không tìm thấy người dùng nào.</td></tr>`;
+    return;
+  }
+
+  filtered.forEach((user, index) => {
+    const tr = document.createElement("tr");
+    const isAdmin = user.role === "admin";
+
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>
+        <strong>${user.fullName || 'Khách vãng lai'}</strong>
+      </td>
+      <td><code style="color: var(--secondary);">${user.username}</code></td>
+      <td><span style="font-family: monospace; color: var(--text-muted);">${user.password}</span></td>
+      <td>
+        <span class="${isAdmin ? 'order-badge-success' : 'tag'}" style="${isAdmin ? 'background: rgba(254, 44, 85, 0.2); color: var(--primary);' : ''}">
+          ${isAdmin ? '👑 Quản trị viên' : '👤 Khách mua hàng'}
+        </span>
+      </td>
+      <td style="font-size: 12px; color: var(--text-muted);">${user.registeredAt || 'Vừa tạo'}</td>
+      <td>
+        ${!isAdmin ? `
+          <button class="btn-icon-danger" onclick="deleteUser('${user.username}')" title="Xóa tài khoản khách này">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        ` : '<span style="color: var(--text-muted); font-size: 11px;">Mặc định</span>'}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function deleteUser(username) {
+  if (confirm(`Bạn có chắc muốn xóa tài khoản người mua "${username}" khỏi hệ thống?`)) {
+    systemUsers = systemUsers.filter(u => u.username !== username);
+    localStorage.setItem("tiktok_shop_users", JSON.stringify(systemUsers));
+    renderAdminUsersList();
+    alert(`Đã xóa tài khoản ${username}!`);
   }
 }
 
