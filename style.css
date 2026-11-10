@@ -661,6 +661,48 @@ body {
   background: rgba(255, 255, 255, 0.02);
 }
 
+.price-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-step {
+  background: #252836;
+  border: 1px solid var(--border-color);
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.btn-step:hover {
+  background: var(--secondary);
+  color: #000;
+}
+
+.inline-stock-input {
+  width: 60px;
+  background: #111217;
+  border: 1px solid #383b4c;
+  color: var(--secondary);
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  text-align: center;
+}
+
+.inline-stock-input:focus {
+  border-color: var(--secondary);
+}
+
 .inline-price-input {
   width: 110px;
   background: #111217;

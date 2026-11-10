@@ -9,6 +9,7 @@ const initialAccounts = [
     price: 3200000,
     status: "available", // "available" (còn hàng), "sold" (hết hàng), "expired" (hết hạn)
     features: ["monetized", "live"],
+    stock: 3,
     featureLabels: ["Bật kiếm tiền Beta", "Đủ điều kiện Live", "Quốc gia: Mỹ (US)"],
     description: "Kênh lập từ 2023, tệp người xem 80% từ Mỹ, RPM cao, đã bật quỹ sáng tạo Beta và đủ điều kiện rút tiền về Paypal. Full email gốc.",
     credentials: {
@@ -985,13 +986,14 @@ function renderAdminProductList() {
   tbody.innerHTML = "";
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 25px;">Không có tài khoản nào.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 25px;">Không có tài khoản nào.</td></tr>`;
     return;
   }
 
   filtered.forEach(item => {
     const tr = document.createElement("tr");
     const currentStatus = item.status || (item.sold ? "sold" : "available");
+    const currentStock = typeof item.stock !== "undefined" ? item.stock : 1;
 
     tr.innerHTML = `
       <td><strong style="color: var(--secondary);">#${item.id}</strong></td>
@@ -1001,8 +1003,16 @@ function renderAdminProductList() {
       </td>
       <td>${item.followers.toLocaleString()}</td>
       <td>
-        <input type="number" class="inline-price-input" value="${item.price}" 
-          onchange="updateAccountPrice('${item.id}', this.value)" title="Nhập giá mới và enter">
+        <div class="price-stepper">
+          <button class="btn-step" onclick="adjustAccountPrice('${item.id}', -50000)" title="Giảm 50.000đ">-</button>
+          <input type="number" class="inline-price-input" value="${item.price}" step="10000"
+            onchange="updateAccountPrice('${item.id}', this.value)" title="Nhập giá mới hoặc bấm nút +/-">
+          <button class="btn-step" onclick="adjustAccountPrice('${item.id}', 50000)" title="Tăng 50.000đ">+</button>
+        </div>
+      </td>
+      <td>
+        <input type="number" class="inline-stock-input" value="${currentStock}" min="0"
+          onchange="updateAccountStock('${item.id}', this.value)" title="Cập nhật số lượng tài khoản trong kho">
       </td>
       <td>
         <select class="inline-status-select" onchange="updateAccountStatus('${item.id}', this.value)">
@@ -1014,13 +1024,51 @@ function renderAdminProductList() {
       <td>
         <div class="admin-actions-cell">
           <button class="btn-icon-danger" onclick="deleteAccount('${item.id}')" title="Xóa tài khoản này">
-            <i class="fa-solid fa-trash"></i>
+            <i class="fa-solid fa-trash"></i> Xóa
           </button>
         </div>
       </td>
     `;
     tbody.appendChild(tr);
   });
+}
+
+// Hàm tăng / giảm giá theo bước nhảy
+function adjustAccountPrice(id, delta) {
+  const acc = accounts.find(a => a.id === id);
+  if (acc) {
+    let newPrice = (acc.price || 0) + delta;
+    if (newPrice < 10000) newPrice = 10000;
+    acc.price = newPrice;
+    saveAccountsToStorage();
+    renderAdminProductList();
+    filterProducts();
+  }
+}
+
+// Cập nhật số lượng sản phẩm trong kho
+function updateAccountStock(id, newStock) {
+  const stockVal = parseInt(newStock, 10);
+  if (isNaN(stockVal) || stockVal < 0) {
+    alert("Số lượng kho không hợp lệ!");
+    renderAdminProductList();
+    return;
+  }
+
+  const acc = accounts.find(a => a.id === id);
+  if (acc) {
+    acc.stock = stockVal;
+    if (stockVal === 0) {
+      acc.status = "sold";
+      acc.sold = true;
+    } else if (acc.status === "sold") {
+      acc.status = "available";
+      acc.sold = false;
+    }
+    saveAccountsToStorage();
+    renderAdminProductList();
+    filterProducts();
+  }
 }
 
 // Cập nhật giá thủ công
@@ -1086,6 +1134,7 @@ function handleAddNewAccount(e) {
   const title = document.getElementById("newAccTitle").value.trim();
   const category = document.getElementById("newAccCategory").value;
   const price = parseInt(document.getElementById("newAccPrice").value, 10);
+  const stock = parseInt(document.getElementById("newAccStock")?.value || "1", 10);
   const followers = parseInt(document.getElementById("newAccFollowers").value, 10);
   const likes = parseInt(document.getElementById("newAccLikes").value, 10);
   const status = document.getElementById("newAccStatus").value;
@@ -1109,6 +1158,7 @@ function handleAddNewAccount(e) {
     followers,
     likes,
     price,
+    stock,
     status,
     sold: status === "sold",
     features: ["live"],
