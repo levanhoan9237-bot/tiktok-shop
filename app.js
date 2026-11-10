@@ -818,6 +818,12 @@ function handleAuthSubmit(e) {
   const username = document.getElementById("authUsername").value.trim().toLowerCase();
   const password = document.getElementById("authPassword").value.trim();
 
+  // Đảm bảo lấy danh sách mới nhất từ LocalStorage trước khi xử lý
+  systemUsers = JSON.parse(localStorage.getItem("tiktok_shop_users") || "[]");
+  if (systemUsers.length === 0) {
+    systemUsers = [...defaultInitialUsers];
+  }
+
   if (authMode === "login") {
     const user = systemUsers.find(u => u.username.toLowerCase() === username && u.password === password);
     if (!user) {
@@ -829,27 +835,29 @@ function handleAuthSubmit(e) {
     if (user.role === "admin") {
       localStorage.setItem("is_staff_admin_authorized", "true");
     }
-    alert(`Xin chào ${user.fullName || user.username}! Đăng nhập thành công.`);
+    alert(`Xin chào ${user.fullName || user.username}! Đăng nhập thành công với vai trò: ${user.role === 'admin' ? 'Quản Trị Viên (Admin)' : 'Khách Mua Hàng'}.`);
   } else {
     // Đăng ký tài khoản khách hàng mới
     if (systemUsers.some(u => u.username.toLowerCase() === username)) {
-      alert("Tên tài khoản này đã được sử dụng! Vui lòng chọn tên khác.");
+      alert(`Tài khoản "${username}" đã tồn tại! Vui lòng chọn tên đăng nhập khác.`);
       return;
     }
     const fullName = document.getElementById("authFullName").value.trim() || username;
     const newUser = {
-      username,
-      password,
-      fullName,
-      role: "customer", // VAI TRÒ KHÁCH MUA HÀNG (SẼ KHÔNG THẤY ADMIN)
+      username: username,
+      password: password,
+      fullName: fullName,
+      role: "customer", // PHÂN BIỆT RÕ RÀNG: ĐÂY LÀ KHÁCH MUA HÀNG
       registeredAt: new Date().toLocaleString("vi-VN")
     };
+
     systemUsers.push(newUser);
     saveSystemUsers();
 
     currentUser = newUser;
     localStorage.setItem("current_logged_user", JSON.stringify(currentUser));
-    alert(`🎉 Chúc mừng ${fullName}! Bạn đã tạo tài khoản khách mua hàng thành công. Giao diện Admin đã được ẩn hoàn toàn để bạn mua sắm thoải mái.`);
+
+    alert(`🎉 Đăng ký thành công!\n- Khách hàng: ${fullName}\n- Tài khoản: ${username}\n- Vai trò: Khách Mua Hàng\n\n(Hệ thống đã lưu lại tài khoản này vào danh sách Quản Trị Viên).`);
   }
 
   updateAuthUI();
@@ -910,16 +918,25 @@ function renderAdminUsersList() {
   const totalEl = document.getElementById("adminTotalRegisteredUsers");
   const search = (document.getElementById("adminUserSearchInput")?.value || "").toLowerCase().trim();
 
-  // Lọc chỉ lấy khách mua hàng hoặc cả danh sách
-  const customerList = systemUsers.filter(u => u.role !== "admin" || search.includes("admin"));
-  
-  if (countEl) countEl.innerText = systemUsers.filter(u => u.role !== "admin").length;
-  if (totalEl) totalEl.innerText = systemUsers.filter(u => u.role !== "admin").length;
+  // Đọc danh sách mới nhất từ LocalStorage
+  systemUsers = JSON.parse(localStorage.getItem("tiktok_shop_users") || "[]");
+  if (systemUsers.length === 0) {
+    systemUsers = [...defaultInitialUsers];
+    localStorage.setItem("tiktok_shop_users", JSON.stringify(systemUsers));
+  }
+
+  // Đếm riêng số lượng khách mua hàng (loại trừ tài khoản admin)
+  const customersOnly = systemUsers.filter(u => u.role === "customer");
+  const totalCustomers = customersOnly.length;
+
+  if (countEl) countEl.innerText = totalCustomers;
+  if (totalEl) totalEl.innerText = totalCustomers;
 
   let filtered = systemUsers.filter(u => {
     if (!search) return true;
     return (u.fullName && u.fullName.toLowerCase().includes(search)) || 
-           (u.username && u.username.toLowerCase().includes(search));
+           (u.username && u.username.toLowerCase().includes(search)) ||
+           (u.role && u.role.toLowerCase().includes(search));
   });
 
   tbody.innerHTML = "";
@@ -936,22 +953,30 @@ function renderAdminUsersList() {
     tr.innerHTML = `
       <td>${index + 1}</td>
       <td>
-        <strong>${user.fullName || 'Khách vãng lai'}</strong>
+        <strong style="color: ${isAdmin ? 'var(--primary)' : '#fff'}; font-size: 14px;">
+          ${user.fullName || 'Khách vãng lai'}
+        </strong>
       </td>
-      <td><code style="color: var(--secondary);">${user.username}</code></td>
-      <td><span style="font-family: monospace; color: var(--text-muted);">${user.password}</span></td>
+      <td><code style="color: var(--secondary); font-size: 13px;">${user.username}</code></td>
+      <td><span style="font-family: monospace; color: #a0aec0; background: #000; padding: 2px 6px; border-radius: 4px;">${user.password}</span></td>
       <td>
-        <span class="${isAdmin ? 'order-badge-success' : 'tag'}" style="${isAdmin ? 'background: rgba(254, 44, 85, 0.2); color: var(--primary);' : ''}">
-          ${isAdmin ? '👑 Quản trị viên' : '👤 Khách mua hàng'}
-        </span>
+        ${isAdmin ? `
+          <span style="background: rgba(254, 44, 85, 0.2); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid rgba(254, 44, 85, 0.3);">
+            👑 QUẢN TRỊ VIÊN (ADMIN)
+          </span>
+        ` : `
+          <span style="background: rgba(37, 244, 238, 0.15); color: var(--secondary); padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid rgba(37, 244, 238, 0.3);">
+            👤 KHÁCH MUA HÀNG
+          </span>
+        `}
       </td>
-      <td style="font-size: 12px; color: var(--text-muted);">${user.registeredAt || 'Vừa tạo'}</td>
+      <td style="font-size: 12px; color: var(--text-muted);">${user.registeredAt || 'Vừa đăng ký'}</td>
       <td>
         ${!isAdmin ? `
           <button class="btn-icon-danger" onclick="deleteUser('${user.username}')" title="Xóa tài khoản khách này">
-            <i class="fa-solid fa-trash"></i>
+            <i class="fa-solid fa-trash"></i> Xóa
           </button>
-        ` : '<span style="color: var(--text-muted); font-size: 11px;">Mặc định</span>'}
+        ` : '<span style="color: var(--text-muted); font-size: 11px; font-style: italic;">Mặc định</span>'}
       </td>
     `;
     tbody.appendChild(tr);
