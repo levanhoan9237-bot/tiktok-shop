@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTokStore - Chợ Mua Bán Tài Khoản TikTok Uy Tín</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container navbar">
+      <div class="logo">
+        <i class="fa-brands fa-tiktok tiktok-icon"></i>
+        <span>TikTok<span class="highlight">Store</span></span>
+      </div>
+      <div class="nav-contact">
+        <!-- Nút Admin: Chỉ hiện khi là tài khoản Quản trị viên (có thể ẩn khi khách thường đăng ký/đăng nhập) -->
+        <button id="adminBtn" class="cart-btn admin-nav-btn" style="display: none;">
+          <i class="fa-solid fa-user-shield"></i> Quản Trị (Admin)
+        </button>
+
+        <!-- Nút Đăng nhập / Đăng ký tài khoản người mua -->
+        <div id="userAuthContainer">
+          <button id="authBtn" class="cart-btn auth-nav-btn" onclick="openAuthModal()">
+            <i class="fa-solid fa-user"></i> <span id="userDisplayName">Đăng Nhập / Đăng Ký</span>
+          </button>
+        </div>
+
+        <button id="myOrdersBtn" class="cart-btn highlight-orders">
+          <i class="fa-solid fa-box-archive"></i> Đơn đã mua (<span id="myOrdersCount">0</span>)
+        </button>
+        <button id="cartBtn" class="cart-btn">
+          <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng (<span id="cartCount">0</span>)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <span class="badge">🔥 Uy Tín - An Toàn - Bảo Hành 1 Đổi 1</span>
+        <h1>Hệ Thống Mua Bán Tài Khoản TikTok Tự Động</h1>
+        <p>Cung cấp acc TikTok chuẩn tệp, bật kiếm tiền (Beta / Shop), đủ điều kiện Livestream, đa dạng chủ đề từ 10k đến 500k followers.</p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <strong>1.500+</strong>
+            <span>Giao dịch thành công</span>
+          </div>
+          <div class="stat-item">
+            <strong>100%</strong>
+            <span>Bảo hành trọn đời email</span>
+          </div>
+          <div class="stat-item">
+            <strong>24/7</strong>
+            <span>Hỗ trợ kỹ thuật</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Products -->
+  <main class="container main-content">
+    
+    <!-- Filter Controls -->
+    <div class="filter-card">
+      <div class="filter-header">
+        <i class="fa-solid fa-filter"></i> Bộ Lọc Tìm Kiếm Nhanh
+      </div>
+      <div class="filter-body">
+        <div class="filter-group">
+          <label>Chủ đề kênh:</label>
+          <select id="categoryFilter">
+            <option value="all">Tất cả chủ đề</option>
+            <option value="entertainment">Hài kịch / Giải trí</option>
+            <option value="food">Ẩm thực / Nấu ăn</option>
+            <option value="fashion">Thời trang / Làm đẹp</option>
+            <option value="finance">Kinh doanh / Đầu tư</option>
+            <option value="game">Gaming / Esports</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Lượng Follower:</label>
+          <select id="followerFilter">
+            <option value="all">Mọi quy mô</option>
+            <option value="under50k">Dưới 50,000</option>
+            <option value="50k-100k">50,000 - 100,000</option>
+            <option value="over100k">Trên 100,000</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Tính năng đặc biệt:</label>
+          <select id="featureFilter">
+            <option value="all">Tất cả</option>
+            <option value="monetized">Đã bật Kiếm Tiền (Beta)</option>
+            <option value="shop">Có TikTok Shop</option>
+            <option value="live">Đủ điều kiện Livestream</option>
+          </select>
+        </div>
+
+        <div class="filter-group search-box">
+          <label>Tìm kiếm:</label>
+          <input type="text" id="searchInput" placeholder="Nhập ID acc hoặc từ khóa...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="products-header">
+      <h2>Danh Sách Tài Khoản Đang Mở Bán (<span id="totalProducts">0</span> acc)</h2>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+      <!-- Cards rendered via JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- Modal Đăng Nhập / Đăng Ký Tài Khoản Người Mua -->
+  <div class="modal" id="authModal">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="authModalTitle"><i class="fa-solid fa-user-lock"></i> Đăng Nhập Tài Khoản</h3>
+        <button class="close-btn" id="closeAuth">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Tab chuyển giữa Đăng nhập & Đăng ký -->
+        <div class="admin-tabs" style="margin-bottom: 16px;">
+          <button class="admin-tab-btn active" id="tabLogin" onclick="switchAuthMode('login')">Đăng Nhập</button>
+          <button class="admin-tab-btn" id="tabRegister" onclick="switchAuthMode('register')">Đăng Ký Khách Mua</button>
+        </div>
+
+        <form id="authForm" onsubmit="handleAuthSubmit(event)">
+          <div class="form-group" id="fullNameGroup" style="display: none;">
+            <label><i class="fa-solid fa-id-card"></i> Họ và tên:</label>
+            <input type="text" id="authFullName" placeholder="Ví dụ: Lê Văn Hoàn">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-envelope"></i> Email / Tên tài khoản:</label>
+            <input type="text" id="authUsername" required placeholder="Nhập email hoặc tên tài khoản">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-lock"></i> Mật khẩu:</label>
+            <input type="password" id="authPassword" required placeholder="Nhập mật khẩu">
+          </div>
+
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; background: #111217; padding: 10px; border-radius: 8px;">
+            <i class="fa-solid fa-circle-info" style="color: var(--secondary);"></i>
+            <span id="authHintText">Mẹo: Tài khoản quản trị mặc định là <strong>admin</strong> / mật khẩu: <strong>admin123</strong>. Người mua đăng ký tài khoản sẽ là tài khoản khách hàng thông thường (không thấy nút Admin).</span>
+          </div>
+
+          <button type="submit" class="btn-primary-block" id="authSubmitBtn">
+            Đăng Nhập Ngay
+          </button>
+        </form>
+
+        <!-- Khi đã đăng nhập -> Hiển thị profile & nút đăng xuất -->
+        <div id="loggedInProfile" style="display: none; text-align: center; padding: 15px 0;">
+          <div style="font-size: 45px; color: var(--secondary); margin-bottom: 10px;">
+            <i class="fa-solid fa-circle-user"></i>
+          </div>
+          <h4 id="profileName" style="font-size: 18px; margin-bottom: 5px;">Tên người dùng</h4>
+          <p id="profileRole" style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Vai trò: Khách mua hàng</p>
+          
+          <button class="btn-icon-danger" style="width: 100%; padding: 12px; font-weight: 700;" onclick="handleLogout()">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất Tài Khoản
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div class="modal" id="cartModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-cart-shopping"></i> Giỏ Hàng Của Bạn</h3>
+        <button class="close-btn" id="closeCart">&times;</button>
+      </div>
+      <div class="modal-body" id="cartItems">
+        <!-- Cart list -->
+      </div>
+      <div class="modal-footer">
+        <div class="total-price">
+          Tổng tiền: <strong id="cartTotal">0 VNĐ</strong>
+        </div>
+        <button class="checkout-btn" id="checkoutBtn" onclick="checkout()">
+          <i class="fa-brands fa-telegram"></i> Đặt mua qua Zalo / Telegram
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal" id="detailModal">
+    <div class="modal-content detail-card-modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Chi tiết tài khoản</h3>
+        <button class="close-btn" id="closeDetail">&times;</button>
+      </div>
+      <div class="modal-body" id="modalDetailBody">
+        <!-- Render detail info -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout / Payment Modal -->
+  <div class="modal" id="checkoutModal">
+    <div class="modal-content payment-modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-credit-card"></i> Thanh Toán Đơn Hàng</h3>
+        <button class="close-btn" id="closeCheckout">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Bỏ thanh step 3 bước cũ, chỉ còn giao diện thanh toán trực tiếp -->
+        
+        <!-- Màn hình Quét mã QR thanh toán TRỰC TIẾP (Không cần nhập tên/sđt/email) -->
+        <div id="paymentStepQR" style="text-align: center;">
+          <div class="summary-box" style="margin-bottom: 15px;">
+            <h4>Tài khoản đang thanh toán:</h4>
+            <div id="checkoutSummaryList"></div>
+            <div class="summary-total">Tổng thanh toán: <strong id="checkoutTotalAmount">0 VNĐ</strong></div>
+          </div>
+
+          <div class="qr-container">
+            <p class="qr-notice">Mở App Ngân Hàng hoặc MoMo để quét mã VietQR tự động:</p>
+            <div class="qr-box">
+              <img id="qrImage" src="" alt="Mã VietQR thanh toán">
+            </div>
+            
+            <div class="bank-details">
+              <div class="bank-row">
+                <span>Ngân hàng:</span>
+                <strong>MBBank (Quân Đội)</strong>
+              </div>
+              <div class="bank-row">
+                <span>Số tài khoản:</span>
+                <strong id="bankAccNumber">0988923799</strong>
+                <button type="button" class="btn-copy" onclick="copyText('0988923799')">Sao chép</button>
+              </div>
+              <div class="bank-row">
+                <span>Chủ tài khoản:</span>
+                <strong>LE VAN HOAN</strong>
+              </div>
+              <div class="bank-row">
+                <span>Số tiền:</span>
+                <strong style="color: var(--primary); font-size: 18px;" id="bankAmount">0 VNĐ</strong>
+              </div>
+              <div class="bank-row">
+                <span>Nội dung CK:</span>
+                <strong style="color: var(--secondary);" id="bankContent">TIKTOK 1001</strong>
+                <button type="button" class="btn-copy" onclick="copyText(document.getElementById('bankContent').innerText)">Sao chép</button>
+              </div>
+            </div>
+
+            <!-- Trạng thái kiểm tra thanh toán tự động -->
+            <div class="auto-check-banner">
+              <div class="spinner"></div>
+              <span>Hệ thống đang tự động kiểm tra biến động số dư ngân hàng...</span>
+            </div>
+
+            <div class="countdown-box">
+              <i class="fa-solid fa-clock"></i> Thời gian giữ tài khoản: <span id="countdownTimer">15:00</span>
+            </div>
+
+            <!-- Nút giả lập thanh toán thực tế (hoặc dành cho khách test) -->
+            <button class="btn-simulate-pay" onclick="simulateSuccessfulPayment()">
+              <i class="fa-solid fa-bolt"></i> [Thử Nghiệm] Giả lập App Ngân Hàng báo "Đã nhận tiền"
+            </button>
+            <button class="btn-back" onclick="closeCheckoutModal()">Hủy giao dịch</button>
+          </div>
+        </div>
+
+        <!-- Màn hình THÀNH CÔNG -> Chuyển vào mục Đã Mua -->
+        <div id="paymentSuccessNotice" style="display: none; text-align: center;">
+          <div class="success-screen">
+            <div class="success-icon pulse">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 style="color: var(--success); font-size: 22px;">THANH TOÁN THÀNH CÔNG!</h3>
+            <p class="success-desc">
+              Hệ thống đã tự động kích hoạt tài khoản của bạn. Đơn hàng đã được lưu trữ vĩnh viễn vào mục <strong>"Đơn đã mua"</strong>.
+            </p>
+
+            <button class="btn-primary-block" style="margin-bottom: 12px;" onclick="openMyOrdersModal(); closeCheckoutModal();">
+              <i class="fa-solid fa-box-archive"></i> Vào xem thông tin tài khoản đã mua
+            </button>
+            <button class="btn-back" onclick="closeCheckoutModal()">Tiếp tục mua thêm</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Quản Trị Viên (Admin Dashboard) -->
+  <div class="modal" id="adminModal">
+    <div class="modal-content admin-modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-screwdriver-wrench"></i> Bảng Điều Khiển Quản Trị Viên (Admin)</h3>
+        <button class="close-btn" id="closeAdmin">&times;</button>
+      </div>
+      <div class="modal-body admin-modal-body">
+        
+        <!-- Tab điều hướng trong Admin -->
+        <div class="admin-tabs">
+          <button class="admin-tab-btn active" id="tabManageProducts" onclick="switchAdminTab('list')">
+            <i class="fa-solid fa-boxes-stacked"></i> Danh Sách Kho Hàng (<span id="adminTotalCount">0</span>)
+          </button>
+          <button class="admin-tab-btn" id="tabAddProduct" onclick="switchAdminTab('add')">
+            <i class="fa-solid fa-plus-circle"></i> + Thêm Tài Khoản Mới
+          </button>
+        </div>
+
+        <!-- Màn hình 1: Quản lý danh sách, sửa giá, đổi trạng thái còn/hết/hết hạn -->
+        <div id="adminViewList">
+          <div class="admin-toolbar">
+            <input type="text" id="adminSearchInput" placeholder="Tìm kiếm theo mã ID, tiêu đề acc..." oninput="renderAdminProductList()">
+            <button class="btn-detail" onclick="resetDefaultAccounts()" title="Khôi phục lại kho tài khoản ban đầu">
+              <i class="fa-solid fa-rotate-left"></i> Khôi phục mẫu
+            </button>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Mã ID</th>
+                  <th>Tiêu đề / Kênh</th>
+                  <th>Followers</th>
+                  <th>Giá Bán (VNĐ)</th>
+                  <th>Trạng Thái Kho</th>
+                  <th>Hành Động</th>
+                </tr>
+              </thead>
+              <tbody id="adminProductTableBody">
+                <!-- Danh sách sản phẩm render qua JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Màn hình 2: Form thêm tài khoản mới vào kho -->
+        <div id="adminViewAdd" style="display: none;">
+          <form id="adminAddForm" onsubmit="handleAddNewAccount(event)">
+            <div class="admin-form-grid">
+              <div class="form-group">
+                <label>Mã tài khoản (ID):</label>
+                <input type="text" id="newAccId" required placeholder="Ví dụ: TT-2001">
+              </div>
+
+              <div class="form-group">
+                <label>Tiêu đề giới thiệu:</label>
+                <input type="text" id="newAccTitle" required placeholder="Ví dụ: Kênh TikTok 200k follow chuẩn tệp Mỹ">
+              </div>
+
+              <div class="form-group">
+                <label>Chuyên mục:</label>
+                <select id="newAccCategory">
+                  <option value="entertainment">Hài kịch / Giải trí</option>
+                  <option value="food">Ẩm thực / Nấu ăn</option>
+                  <option value="fashion">Thời trang / Làm đẹp</option>
+                  <option value="finance">Kinh doanh / Đầu tư</option>
+                  <option value="game">Gaming / Esports</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Giá bán (VNĐ):</label>
+                <input type="number" id="newAccPrice" required min="10000" step="10000" placeholder="Ví dụ: 2500000">
+              </div>
+
+              <div class="form-group">
+                <label>Số lượng Followers:</label>
+                <input type="number" id="newAccFollowers" required placeholder="Ví dụ: 85000">
+              </div>
+
+              <div class="form-group">
+                <label>Số lượt Thích (Likes):</label>
+                <input type="number" id="newAccLikes" required placeholder="Ví dụ: 1200000">
+              </div>
+
+              <div class="form-group">
+                <label>Trạng thái ban đầu:</label>
+                <select id="newAccStatus">
+                  <option value="available">Còn hàng (Đang mở bán)</option>
+                  <option value="sold">Đã bán (Hết hàng)</option>
+                  <option value="expired">Hết hạn (Ngừng kinh doanh)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Các thẻ tính năng (phân tách bằng dấu phẩy):</label>
+                <input type="text" id="newAccTags" placeholder="Bật kiếm tiền Beta, Live OBS, Full email">
+              </div>
+            </div>
+
+            <!-- Thông tin bảo mật bàn giao cho khách khi mua xong -->
+            <div class="secure-box-admin">
+              <h5><i class="fa-solid fa-lock"></i> Thông tin bàn giao bí mật (Khách chỉ thấy sau khi thanh toán):</h5>
+              <div class="admin-form-grid">
+                <div class="form-group">
+                  <label>Username TikTok:</label>
+                  <input type="text" id="newCredUser" required placeholder="@kenh_tiktok">
+                </div>
+                <div class="form-group">
+                  <label>Mật khẩu TikTok:</label>
+                  <input type="text" id="newCredPass" required placeholder="PassTikTok123!">
+                </div>
+                <div class="form-group">
+                  <label>Email gốc liên kết:</label>
+                  <input type="text" id="newCredEmail" required placeholder="emailgoc@gmail.com">
+                </div>
+                <div class="form-group">
+                  <label>Mật khẩu Email gốc:</label>
+                  <input type="text" id="newCredEmailPass" required placeholder="PassEmail456@">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                  <label>Mã khóa 2FA (Xác minh 2 bước):</label>
+                  <input type="text" id="newCred2FA" placeholder="JBSWY3DPEHPK3PXP">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Mô tả chi tiết kênh:</label>
+              <textarea id="newAccDesc" rows="3" placeholder="Nhập tệp người xem, quốc gia, thời gian lập kênh, chính sách bảo hành..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary-block" style="margin-top: 15px;">
+              <i class="fa-solid fa-floppy-disk"></i> Lưu và Thêm Vào Kho Mở Bán
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Đơn Đã Mua (Kho lưu trữ tài khoản của người dùng) -->
+  <div class="modal" id="myOrdersModal">
+    <div class="modal-content payment-modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-box-archive"></i> Kho Tài Khoản TikTok Đã Mua</h3>
+        <button class="close-btn" id="closeMyOrders">&times;</button>
+      </div>
+      <div class="modal-body" id="myOrdersBody">
+        <!-- Render danh sách các tài khoản đã mua -->
+      </div>
+      <div class="modal-footer">
+        <span style="font-size: 13px; color: var(--text-muted);">Tài khoản được lưu tự động trên trình duyệt này</span>
+        <button class="btn-detail" onclick="closeModal('myOrdersModal')">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p>© 2026 TikTokStore. Hệ thống bán tài khoản tự động uy tín số 1 Việt Nam.</p>
+      <p>Cam kết thông tin sạch, full email gốc, hỗ trợ đổi thông tin chính chủ 100%.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
