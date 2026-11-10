@@ -718,13 +718,25 @@ function copyAccountCredentials() {
 }
 
 // =================== AUTHENTICATION (USER & ADMIN) ===================
-// Danh sách người dùng hệ thống lưu trong LocalStorage
+// Danh sách người dùng hệ thống lưu vĩnh viễn trong LocalStorage
+let defaultInitialUsers = [
+  { username: "admin", password: "admin123", fullName: "Quản Trị Viên", role: "admin", registeredAt: "Hệ thống tạo sẵn" },
+  { username: "khachhang_demo@gmail.com", password: "123", fullName: "Nguyễn Văn Demo", role: "customer", registeredAt: "11/11/2026, 00:05:00" }
+];
+
 let systemUsers = JSON.parse(localStorage.getItem("tiktok_shop_users") || "null");
-if (!systemUsers) {
-  systemUsers = [
-    { username: "admin", password: "admin123", fullName: "Quản Trị Viên", role: "admin" }
-  ];
+if (!systemUsers || !Array.isArray(systemUsers) || systemUsers.length === 0) {
+  systemUsers = [...defaultInitialUsers];
   localStorage.setItem("tiktok_shop_users", JSON.stringify(systemUsers));
+}
+
+function saveSystemUsers() {
+  localStorage.setItem("tiktok_shop_users", JSON.stringify(systemUsers));
+  const countEl = document.getElementById("adminUsersCount");
+  const totalEl = document.getElementById("adminTotalRegisteredUsers");
+  const customerCount = systemUsers.filter(u => u.role !== "admin").length;
+  if (countEl) countEl.innerText = customerCount;
+  if (totalEl) totalEl.innerText = customerCount;
 }
 
 // Người dùng hiện tại đang đăng nhập (mặc định là khách vãng lai hoặc tài khoản đã lưu)
@@ -833,7 +845,7 @@ function handleAuthSubmit(e) {
       registeredAt: new Date().toLocaleString("vi-VN")
     };
     systemUsers.push(newUser);
-    localStorage.setItem("tiktok_shop_users", JSON.stringify(systemUsers));
+    saveSystemUsers();
 
     currentUser = newUser;
     localStorage.setItem("current_logged_user", JSON.stringify(currentUser));
@@ -864,6 +876,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function openAdminModal() {
   switchAdminTab('list');
   renderAdminProductList();
+  renderAdminUsersList();
   document.getElementById("adminModal").classList.add("active");
 }
 
@@ -948,7 +961,7 @@ function renderAdminUsersList() {
 function deleteUser(username) {
   if (confirm(`Bạn có chắc muốn xóa tài khoản người mua "${username}" khỏi hệ thống?`)) {
     systemUsers = systemUsers.filter(u => u.username !== username);
-    localStorage.setItem("tiktok_shop_users", JSON.stringify(systemUsers));
+    saveSystemUsers();
     renderAdminUsersList();
     alert(`Đã xóa tài khoản ${username}!`);
   }
