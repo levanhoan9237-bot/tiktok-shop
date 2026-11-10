@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TikTokStore - Chợ Mua Bán Tài Khoản TikTok Uy Tín</title>
-  <link rel="stylesheet" href="style.css?v=2.5">
+  <link rel="stylesheet" href="style.css?v=3.0">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Fonts -->
@@ -159,7 +159,7 @@
 
           <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; background: #111217; padding: 10px; border-radius: 8px;">
             <i class="fa-solid fa-circle-info" style="color: var(--secondary);"></i>
-            <span id="authHintText">Mẹo: Tài khoản quản trị mặc định là <strong>admin</strong> / mật khẩu: <strong>admin123</strong>. Người mua đăng ký tài khoản sẽ là tài khoản khách hàng thông thường (không thấy nút Admin).</span>
+            <span id="authHintText">Mẹo: Tài khoản quản trị mặc định là <strong>admin</strong> / mật khẩu: <strong>admin123</strong>. Người mua đăng ký tài khoản sẽ là tài khoản khách hàng thông thường.</span>
           </div>
 
           <button type="submit" class="btn-primary-block" id="authSubmitBtn">
@@ -178,59 +178,6 @@
           <button class="btn-icon-danger" style="width: 100%; padding: 12px; font-weight: 700;" onclick="handleLogout()">
             <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất Tài Khoản
           </button>
-        <!-- Màn hình 4: Quản lý danh sách khách hàng đã đăng ký tài khoản (Chỉ Admin xem được) -->
-        <div id="adminViewUsers" style="display: none;">
-          <div class="admin-toolbar">
-            <input type="text" id="adminUserSearchInput" placeholder="Tìm kiếm theo tên khách, email..." oninput="renderAdminUsersList()">
-            <span style="font-size: 13px; color: var(--text-muted); align-self: center;">
-              Tổng cộng: <strong id="adminTotalRegisteredUsers" style="color: var(--secondary);">0</strong> người mua
-            </span>
-          </div>
-
-          <div class="admin-table-wrapper">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Họ và Tên Khách</th>
-                  <th>Tài Khoản / Email</th>
-                  <th>Mật Khẩu</th>
-                  <th>Vai Trò</th>
-                  <th>Thời Gian Đăng Ký</th>
-                  <th>Hành Động</th>
-                </tr>
-              </thead>
-              <tbody id="adminUsersTableBody">
-                <!-- Danh sách khách hàng render qua JavaScript -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Màn hình 3: Cấp quyền link cho nhân viên -->
-        <div id="adminViewStaff" style="display: none;">
-          <div style="background: #111217; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
-            <h4 style="margin-bottom: 10px; color: var(--secondary);">
-              <i class="fa-solid fa-link"></i> Link Bí Mật Vào Trang Quản Trị Dành Cho Nhân Viên
-            </h4>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-              Khách mua hàng thông thường sẽ <strong>không bao giờ thấy nút Admin</strong>. Mỗi khi bạn tuyển nhân viên mới, chỉ cần gửi đường link bảo mật bên dưới để nhân viên mở khóa bảng quản trị và thiết lập tài khoản làm việc.
-            </p>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-              <input type="text" id="adminSecretLinkInput" readonly style="flex-grow: 1; background: #000; border: 1px solid var(--border-color); color: var(--secondary); padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px;">
-              <button class="btn-primary-block" style="width: auto; padding: 0 20px; margin: 0; white-space: nowrap;" onclick="copyAdminSecretLink()">
-                <i class="fa-solid fa-copy"></i> Sao chép Link
-              </button>
-            </div>
-
-            <div style="background: rgba(245, 158, 11, 0.08); border-left: 4px solid var(--warning); padding: 15px; border-radius: 4px; font-size: 13px; line-height: 1.6;">
-              <strong>Hướng dẫn gửi cho nhân viên:</strong>
-              <p>1. Bạn bấm nút <strong>"Sao chép Link"</strong> ở trên và gửi qua Zalo / Telegram cho nhân viên.</p>
-              <p>2. Nhân viên nhấp vào link bí mật đó, nút <strong>Quản Trị (Admin)</strong> sẽ tự động mở khóa trên máy của họ.</p>
-              <p>3. Nhân viên có thể thêm sản phẩm, cập nhật giá và kiểm tra đơn hàng trực tiếp.</p>
-            </div>
-          </div>
         </div>
 
       </div>
@@ -252,7 +199,7 @@
           Tổng tiền: <strong id="cartTotal">0 VNĐ</strong>
         </div>
         <button class="checkout-btn" id="checkoutBtn" onclick="checkout()">
-          <i class="fa-brands fa-telegram"></i> Đặt mua qua Zalo / Telegram
+          <i class="fa-solid fa-bolt"></i> Thanh Toán Ngay
         </button>
       </div>
     </div>
@@ -280,9 +227,7 @@
       </div>
       <div class="modal-body">
         
-        <!-- Bỏ thanh step 3 bước cũ, chỉ còn giao diện thanh toán trực tiếp -->
-        
-        <!-- Màn hình Quét mã QR thanh toán TRỰC TIẾP (Không cần nhập tên/sđt/email) -->
+        <!-- Màn hình Quét mã QR thanh toán TRỰC TIẾP -->
         <div id="paymentStepQR" style="text-align: center;">
           <div class="summary-box" style="margin-bottom: 15px;">
             <h4>Tài khoản đang thanh toán:</h4>
@@ -354,59 +299,6 @@
               <i class="fa-solid fa-box-archive"></i> Vào xem thông tin tài khoản đã mua
             </button>
             <button class="btn-back" onclick="closeCheckoutModal()">Tiếp tục mua thêm</button>
-          </div>
-        <!-- Màn hình 4: Quản lý danh sách khách hàng đã đăng ký tài khoản (Chỉ Admin xem được) -->
-        <div id="adminViewUsers" style="display: none;">
-          <div class="admin-toolbar">
-            <input type="text" id="adminUserSearchInput" placeholder="Tìm kiếm theo tên khách, email..." oninput="renderAdminUsersList()">
-            <span style="font-size: 13px; color: var(--text-muted); align-self: center;">
-              Tổng cộng: <strong id="adminTotalRegisteredUsers" style="color: var(--secondary);">0</strong> người mua
-            </span>
-          </div>
-
-          <div class="admin-table-wrapper">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Họ và Tên Khách</th>
-                  <th>Tài Khoản / Email</th>
-                  <th>Mật Khẩu</th>
-                  <th>Vai Trò</th>
-                  <th>Thời Gian Đăng Ký</th>
-                  <th>Hành Động</th>
-                </tr>
-              </thead>
-              <tbody id="adminUsersTableBody">
-                <!-- Danh sách khách hàng render qua JavaScript -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Màn hình 3: Cấp quyền link cho nhân viên -->
-        <div id="adminViewStaff" style="display: none;">
-          <div style="background: #111217; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
-            <h4 style="margin-bottom: 10px; color: var(--secondary);">
-              <i class="fa-solid fa-link"></i> Link Bí Mật Vào Trang Quản Trị Dành Cho Nhân Viên
-            </h4>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-              Khách mua hàng thông thường sẽ <strong>không bao giờ thấy nút Admin</strong>. Mỗi khi bạn tuyển nhân viên mới, chỉ cần gửi đường link bảo mật bên dưới để nhân viên mở khóa bảng quản trị và thiết lập tài khoản làm việc.
-            </p>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-              <input type="text" id="adminSecretLinkInput" readonly style="flex-grow: 1; background: #000; border: 1px solid var(--border-color); color: var(--secondary); padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px;">
-              <button class="btn-primary-block" style="width: auto; padding: 0 20px; margin: 0; white-space: nowrap;" onclick="copyAdminSecretLink()">
-                <i class="fa-solid fa-copy"></i> Sao chép Link
-              </button>
-            </div>
-
-            <div style="background: rgba(245, 158, 11, 0.08); border-left: 4px solid var(--warning); padding: 15px; border-radius: 4px; font-size: 13px; line-height: 1.6;">
-              <strong>Hướng dẫn gửi cho nhân viên:</strong>
-              <p>1. Bạn bấm nút <strong>"Sao chép Link"</strong> ở trên và gửi qua Zalo / Telegram cho nhân viên.</p>
-              <p>2. Nhân viên nhấp vào link bí mật đó, nút <strong>Quản Trị (Admin)</strong> sẽ tự động mở khóa trên máy của họ.</p>
-              <p>3. Nhân viên có thể thêm sản phẩm, cập nhật giá và kiểm tra đơn hàng trực tiếp.</p>
-            </div>
           </div>
         </div>
 
@@ -564,7 +456,9 @@
               <i class="fa-solid fa-floppy-disk"></i> Lưu và Thêm Vào Kho Mở Bán
             </button>
           </form>
-        <!-- Màn hình 4: Quản lý danh sách khách hàng đã đăng ký tài khoản (Chỉ Admin xem được) -->
+        </div>
+
+        <!-- Màn hình 3: Quản lý danh sách khách hàng đã đăng ký tài khoản (Chỉ Admin xem được) -->
         <div id="adminViewUsers" style="display: none;">
           <div class="admin-toolbar">
             <input type="text" id="adminUserSearchInput" placeholder="Tìm kiếm theo tên khách, email..." oninput="renderAdminUsersList()">
@@ -593,7 +487,7 @@
           </div>
         </div>
 
-        <!-- Màn hình 3: Cấp quyền link cho nhân viên -->
+        <!-- Màn hình 4: Cấp quyền link cho nhân viên -->
         <div id="adminViewStaff" style="display: none;">
           <div style="background: #111217; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
             <h4 style="margin-bottom: 10px; color: var(--secondary);">
@@ -648,7 +542,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=2.5"></script>
+  <script src="app.js?v=3.0"></script>
 </body>
 </html>
-
