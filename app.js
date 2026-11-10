@@ -734,18 +734,34 @@ function updateAuthUI() {
   const adminBtn = document.getElementById("adminBtn");
   const userDisplayName = document.getElementById("userDisplayName");
 
+  // Kiểm tra tham số bí mật trên link: ?admin=secret_admin_hoan hoặc ?admin=true
+  const urlParams = new URLSearchParams(window.location.search);
+  const hasAdminKeyInUrl = urlParams.get("admin") === "hoan_admin" || urlParams.get("admin") === "true";
+
+  if (hasAdminKeyInUrl) {
+    // Lưu quyền quản trị viên trên trình duyệt này
+    localStorage.setItem("is_staff_admin_authorized", "true");
+  }
+
+  const isStaffAuthorized = localStorage.getItem("is_staff_admin_authorized") === "true";
+
   if (currentUser) {
     userDisplayName.innerText = currentUser.fullName || currentUser.username;
-    // CHỈ hiển thị nút Admin nếu vai trò là "admin"
-    if (currentUser.role === "admin") {
-      adminBtn.style.display = "inline-flex";
+    // Chỉ hiện khi có quyền admin
+    if (currentUser.role === "admin" || isStaffAuthorized) {
+      adminBtn.style.setProperty("display", "inline-flex", "important");
     } else {
-      adminBtn.style.display = "none"; // Khách mua hàng đăng ký sẽ hoàn toàn không thấy nút Admin
+      adminBtn.style.setProperty("display", "none", "important"); // Khách hàng bình thường ẩn 100%
     }
   } else {
     userDisplayName.innerText = "Đăng Nhập / Đăng Ký";
-    // Mặc định cho phép người tạo trang web truy cập tiện lợi lúc chưa đăng nhập hoặc có thể ẩn
-    adminBtn.style.display = "inline-flex"; 
+    // Nếu khách vãng lai bình thường chưa đăng nhập -> ẨN TUYỆT ĐỐI nút Admin
+    // Trừ khi họ truy cập qua link bí mật của bạn gửi
+    if (isStaffAuthorized) {
+      adminBtn.style.setProperty("display", "inline-flex", "important");
+    } else {
+      adminBtn.style.setProperty("display", "none", "important");
+    }
   }
 }
 
@@ -849,10 +865,40 @@ function openAdminModal() {
 
 function switchAdminTab(tab) {
   const isList = tab === 'list';
+  const isAdd = tab === 'add';
+  const isStaff = tab === 'staff';
+
   document.getElementById("tabManageProducts").className = "admin-tab-btn " + (isList ? "active" : "");
-  document.getElementById("tabAddProduct").className = "admin-tab-btn " + (!isList ? "active" : "");
+  document.getElementById("tabAddProduct").className = "admin-tab-btn " + (isAdd ? "active" : "");
+  document.getElementById("tabStaffAccess").className = "admin-tab-btn " + (isStaff ? "active" : "");
+
   document.getElementById("adminViewList").style.display = isList ? "block" : "none";
-  document.getElementById("adminViewAdd").style.display = !isList ? "block" : "none";
+  document.getElementById("adminViewAdd").style.display = isAdd ? "block" : "none";
+  document.getElementById("adminViewStaff").style.display = isStaff ? "block" : "none";
+
+  if (isStaff) {
+    generateStaffSecretLink();
+  }
+}
+
+function generateStaffSecretLink() {
+  const currentBaseUrl = window.location.origin + window.location.pathname;
+  const secretLink = currentBaseUrl + "?admin=hoan_admin";
+  const inputEl = document.getElementById("adminSecretLinkInput");
+  if (inputEl) {
+    inputEl.value = secretLink;
+  }
+}
+
+function copyAdminSecretLink() {
+  const inputEl = document.getElementById("adminSecretLinkInput");
+  if (inputEl) {
+    navigator.clipboard.writeText(inputEl.value).then(() => {
+      alert("✅ Đã sao chép link bí mật dành cho nhân viên!\n\nLink: " + inputEl.value + "\n\nBạn có thể gửi link này qua Zalo cho nhân viên.");
+    }).catch(() => {
+      alert("Link bí mật: " + inputEl.value);
+    });
+  }
 }
 
 function renderAdminProductList() {

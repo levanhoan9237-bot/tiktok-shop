@@ -20,8 +20,8 @@
         <span>TikTok<span class="highlight">Store</span></span>
       </div>
       <div class="nav-contact">
-        <!-- Nút Admin: Chỉ hiện khi là tài khoản Quản trị viên (có thể ẩn khi khách thường đăng ký/đăng nhập) -->
-        <button id="adminBtn" class="cart-btn admin-nav-btn" style="display: none;">
+        <!-- Nút Admin: MẶC ĐỊNH ẨN HOÀN TOÀN (Người dùng bình thường tuyệt đối không nhìn thấy) -->
+        <button id="adminBtn" class="cart-btn admin-nav-btn" style="display: none !important;">
           <i class="fa-solid fa-user-shield"></i> Quản Trị (Admin)
         </button>
 
@@ -178,6 +178,30 @@
           <button class="btn-icon-danger" style="width: 100%; padding: 12px; font-weight: 700;" onclick="handleLogout()">
             <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất Tài Khoản
           </button>
+        <!-- Màn hình 3: Cấp quyền link cho nhân viên -->
+        <div id="adminViewStaff" style="display: none;">
+          <div style="background: #111217; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 10px; color: var(--secondary);">
+              <i class="fa-solid fa-link"></i> Link Bí Mật Vào Trang Quản Trị Dành Cho Nhân Viên
+            </h4>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+              Khách mua hàng thông thường sẽ <strong>không bao giờ thấy nút Admin</strong>. Mỗi khi bạn tuyển nhân viên mới, chỉ cần gửi đường link bảo mật bên dưới để nhân viên mở khóa bảng quản trị và thiết lập tài khoản làm việc.
+            </p>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+              <input type="text" id="adminSecretLinkInput" readonly style="flex-grow: 1; background: #000; border: 1px solid var(--border-color); color: var(--secondary); padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+              <button class="btn-primary-block" style="width: auto; padding: 0 20px; margin: 0; white-space: nowrap;" onclick="copyAdminSecretLink()">
+                <i class="fa-solid fa-copy"></i> Sao chép Link
+              </button>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.08); border-left: 4px solid var(--warning); padding: 15px; border-radius: 4px; font-size: 13px; line-height: 1.6;">
+              <strong>Hướng dẫn gửi cho nhân viên:</strong>
+              <p>1. Bạn bấm nút <strong>"Sao chép Link"</strong> ở trên và gửi qua Zalo / Telegram cho nhân viên.</p>
+              <p>2. Nhân viên nhấp vào link bí mật đó, nút <strong>Quản Trị (Admin)</strong> sẽ tự động mở khóa trên máy của họ.</p>
+              <p>3. Nhân viên có thể thêm sản phẩm, cập nhật giá và kiểm tra đơn hàng trực tiếp.</p>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -302,6 +326,30 @@
             </button>
             <button class="btn-back" onclick="closeCheckoutModal()">Tiếp tục mua thêm</button>
           </div>
+        <!-- Màn hình 3: Cấp quyền link cho nhân viên -->
+        <div id="adminViewStaff" style="display: none;">
+          <div style="background: #111217; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 10px; color: var(--secondary);">
+              <i class="fa-solid fa-link"></i> Link Bí Mật Vào Trang Quản Trị Dành Cho Nhân Viên
+            </h4>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+              Khách mua hàng thông thường sẽ <strong>không bao giờ thấy nút Admin</strong>. Mỗi khi bạn tuyển nhân viên mới, chỉ cần gửi đường link bảo mật bên dưới để nhân viên mở khóa bảng quản trị và thiết lập tài khoản làm việc.
+            </p>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+              <input type="text" id="adminSecretLinkInput" readonly style="flex-grow: 1; background: #000; border: 1px solid var(--border-color); color: var(--secondary); padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+              <button class="btn-primary-block" style="width: auto; padding: 0 20px; margin: 0; white-space: nowrap;" onclick="copyAdminSecretLink()">
+                <i class="fa-solid fa-copy"></i> Sao chép Link
+              </button>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.08); border-left: 4px solid var(--warning); padding: 15px; border-radius: 4px; font-size: 13px; line-height: 1.6;">
+              <strong>Hướng dẫn gửi cho nhân viên:</strong>
+              <p>1. Bạn bấm nút <strong>"Sao chép Link"</strong> ở trên và gửi qua Zalo / Telegram cho nhân viên.</p>
+              <p>2. Nhân viên nhấp vào link bí mật đó, nút <strong>Quản Trị (Admin)</strong> sẽ tự động mở khóa trên máy của họ.</p>
+              <p>3. Nhân viên có thể thêm sản phẩm, cập nhật giá và kiểm tra đơn hàng trực tiếp.</p>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -324,6 +372,9 @@
           </button>
           <button class="admin-tab-btn" id="tabAddProduct" onclick="switchAdminTab('add')">
             <i class="fa-solid fa-plus-circle"></i> + Thêm Tài Khoản Mới
+          </button>
+          <button class="admin-tab-btn" id="tabStaffAccess" onclick="switchAdminTab('staff')">
+            <i class="fa-solid fa-user-plus"></i> Cấp Link Cho Nhân Viên
           </button>
         </div>
 
@@ -446,6 +497,30 @@
               <i class="fa-solid fa-floppy-disk"></i> Lưu và Thêm Vào Kho Mở Bán
             </button>
           </form>
+        <!-- Màn hình 3: Cấp quyền link cho nhân viên -->
+        <div id="adminViewStaff" style="display: none;">
+          <div style="background: #111217; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 10px; color: var(--secondary);">
+              <i class="fa-solid fa-link"></i> Link Bí Mật Vào Trang Quản Trị Dành Cho Nhân Viên
+            </h4>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+              Khách mua hàng thông thường sẽ <strong>không bao giờ thấy nút Admin</strong>. Mỗi khi bạn tuyển nhân viên mới, chỉ cần gửi đường link bảo mật bên dưới để nhân viên mở khóa bảng quản trị và thiết lập tài khoản làm việc.
+            </p>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+              <input type="text" id="adminSecretLinkInput" readonly style="flex-grow: 1; background: #000; border: 1px solid var(--border-color); color: var(--secondary); padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+              <button class="btn-primary-block" style="width: auto; padding: 0 20px; margin: 0; white-space: nowrap;" onclick="copyAdminSecretLink()">
+                <i class="fa-solid fa-copy"></i> Sao chép Link
+              </button>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.08); border-left: 4px solid var(--warning); padding: 15px; border-radius: 4px; font-size: 13px; line-height: 1.6;">
+              <strong>Hướng dẫn gửi cho nhân viên:</strong>
+              <p>1. Bạn bấm nút <strong>"Sao chép Link"</strong> ở trên và gửi qua Zalo / Telegram cho nhân viên.</p>
+              <p>2. Nhân viên nhấp vào link bí mật đó, nút <strong>Quản Trị (Admin)</strong> sẽ tự động mở khóa trên máy của họ.</p>
+              <p>3. Nhân viên có thể thêm sản phẩm, cập nhật giá và kiểm tra đơn hàng trực tiếp.</p>
+            </div>
+          </div>
         </div>
 
       </div>
