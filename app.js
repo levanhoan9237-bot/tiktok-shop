@@ -717,7 +717,46 @@ function copyAccountCredentials() {
   });
 }
 
-// =================== AUTHENTICATION (USER & ADMIN) ===================
+// Cấu hình Google Sheets Sync
+const GOOGLE_SHEET_ID = "1XPtKiCtq-VMmfD-ua0mITpeBQdRapbcvzrut05UwQFw";
+let googleAppsScriptUrl = localStorage.getItem("tiktok_google_sheet_webhook") || "";
+
+function saveGoogleScriptUrl(url) {
+  googleAppsScriptUrl = url.trim();
+  localStorage.setItem("tiktok_google_sheet_webhook", googleAppsScriptUrl);
+  alert("✅ Đã lưu cấu hình Google Apps Script Webhook!");
+}
+
+// Gửi thông tin người dùng lên Google Sheet khi đăng ký
+async function sendUserToGoogleSheet(userData) {
+  if (!googleAppsScriptUrl) {
+    console.log("Chưa cấu hình Google Apps Script Webhook. Bỏ qua gửi Google Sheets trực tiếp.");
+    return;
+  }
+
+  try {
+    const payload = {
+      fullName: userData.fullName || "",
+      username: userData.username || "",
+      password: userData.password || "",
+      role: userData.role || "customer",
+      registeredAt: userData.registeredAt || new Date().toLocaleString("vi-VN"),
+      device: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "Điện thoại (Mobile)" : "Máy tính (Desktop)"
+    };
+
+    await fetch(googleAppsScriptUrl, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+    console.log("✅ Đã gửi dữ liệu đăng ký lên Google Sheets thành công!");
+  } catch (err) {
+    console.warn("Lỗi khi gửi lên Google Sheets:", err);
+  }
+}
 // Danh sách người dùng hệ thống lưu vĩnh viễn trong LocalStorage
 let defaultInitialUsers = [
   { username: "admin", password: "admin123", fullName: "Quản Trị Viên", role: "admin", registeredAt: "Hệ thống tạo sẵn" },
@@ -853,6 +892,9 @@ function handleAuthSubmit(e) {
 
     systemUsers.push(newUser);
     saveSystemUsers();
+
+    // Gửi tự động lên Google Sheet Cloud
+    sendUserToGoogleSheet(newUser);
 
     currentUser = newUser;
     localStorage.setItem("current_logged_user", JSON.stringify(currentUser));

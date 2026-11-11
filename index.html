@@ -460,6 +460,30 @@
 
         <!-- Màn hình 3: Quản lý danh sách khách hàng đã đăng ký tài khoản (Chỉ Admin xem được) -->
         <div id="adminViewUsers" style="display: none;">
+          <!-- Khung tích hợp Google Sheets đồng bộ Cloud -->
+          <div style="background: rgba(37, 244, 238, 0.05); border: 1px solid var(--secondary); border-radius: 10px; padding: 15px; margin-bottom: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-cloud-arrow-up" style="color: var(--secondary); font-size: 20px;"></i>
+                <div>
+                  <strong style="color: #fff; font-size: 14px;">Đồng bộ dữ liệu Cloud Google Sheets</strong>
+                  <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Khách đăng ký trên điện thoại hay bất kỳ đâu sẽ tự động lưu về Google Sheet của bạn.</p>
+                </div>
+              </div>
+              <a href="https://docs.google.com/spreadsheets/d/1XPtKiCtq-VMmfD-ua0mITpeBQdRapbcvzrut05UwQFw/edit" target="_blank" class="contact-btn" style="background: #0f9d58; padding: 8px 14px; font-size: 13px;">
+                <i class="fa-solid fa-file-excel"></i> Mở Google Sheet Quản Lý
+              </a>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; background: #0b0c10; padding: 10px; border-radius: 6px;">
+              <span style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">URL Webhook Google Apps Script:</span>
+              <input type="text" id="googleSheetScriptUrl" placeholder="Dán link Web App Apps Script vào đây để kích hoạt gửi tự động..." style="flex-grow: 1; background: #15161f; border: 1px solid var(--border-color); color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 12px;" onchange="saveGoogleScriptUrl(this.value)">
+              <button class="btn-detail" onclick="saveGoogleScriptUrl(document.getElementById('googleSheetScriptUrl').value)" style="white-space: nowrap; padding: 6px 12px;">
+                <i class="fa-solid fa-floppy-disk"></i> Lưu URL
+              </button>
+            </div>
+          </div>
+
           <div class="admin-toolbar">
             <input type="text" id="adminUserSearchInput" placeholder="Tìm kiếm theo tên khách, email..." oninput="renderAdminUsersList()">
             <span style="font-size: 13px; color: var(--text-muted); align-self: center;">
