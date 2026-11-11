@@ -1,4 +1,4 @@
-﻿function closeCheckoutModal() {
+function closeCheckoutModal() {
   if (timerInterval) clearInterval(timerInterval);
   if (checkBankInterval) clearInterval(checkBankInterval);
   closeModal("checkoutModal");
@@ -876,7 +876,7 @@ function switchAuthMode(mode) {
   }
 }
 
-function handleAuthSubmit(e) {
+async function handleAuthSubmit(e) {
   e.preventDefault();
   const username = document.getElementById("authUsername").value.trim().toLowerCase();
   const password = document.getElementById("authPassword").value.trim();
@@ -894,17 +894,35 @@ function handleAuthSubmit(e) {
       return;
     }
 
-    // KIỂM TRA DUYỆT TÀI KHOẢN ADMIN:
-    if (user.role === "admin_pending") {
-      alert("⏳ Tài khoản Admin của bạn đang ở trạng thái [CHỜ CHỦ SHOP DUYỆT TRÊN GOOGLE SHEET]!\n\nVui lòng liên hệ Chủ Shop duyệt trước khi đăng nhập.");
+    // KIỂM TRA DUYỆT TÀI KHOẢN TRỰC TIẾP TỪ GOOGLE SHEET HOẶC HỆ THỐNG
+    let activeRole = user.role;
+    try {
+      // Đồng bộ trạng thái duyệt mới nhất từ Google Sheet nếu có mạng
+      const checkResp = await fetch(googleAppsScriptUrl + "?action=check_role&username=" + encodeURIComponent(username));
+      if (checkResp.ok) {
+        const checkData = await checkResp.json();
+        if (checkData && checkData.role) {
+          activeRole = checkData.role;
+          user.role = activeRole;
+          saveSystemUsers();
+        }
+      }
+    } catch (e) {
+      console.log("Dùng trạng thái lưu sẵn:", user.role);
+    }
+
+    if (activeRole === "admin_pending" || activeRole.includes("CHỜ DUYỆT") || activeRole.includes("Chờ duyệt")) {
+      alert("⏳ Tài khoản Admin của bạn đang ở trạng thái [CHỜ CHỦ SHOP DUYỆT TRÊN GOOGLE SHEET]!\n\nSau khi Chủ Shop chọn 'Đã duyệt' trên Google Sheet thì bạn mới đăng nhập được.");
       return;
     }
 
     currentUser = user;
     localStorage.setItem("current_logged_user", JSON.stringify(currentUser));
-    if (user.role === "admin") {
+    if (activeRole === "admin" || activeRole.includes("Đã duyệt") || activeRole.includes("admin_approved")) {
+      user.role = "admin";
+      saveSystemUsers();
       localStorage.setItem("is_staff_admin_authorized", "true");
-      alert("👑 Xin chào Quản Trị Viên " + (user.fullName || user.username) + "! Quyền Admin đã được mở khóa.");
+      alert("👑 Xin chào Quản Trị Viên " + (user.fullName || user.username) + "! Bạn đã được duyệt quyền Admin thành công.");
     } else {
       localStorage.removeItem("is_staff_admin_authorized");
       alert("Xin chào " + (user.fullName || user.username) + "! Đăng nhập thành công (Khách Mua Hàng).");
