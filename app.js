@@ -842,16 +842,30 @@ function openAuthModal() {
 function switchAuthMode(mode) {
   authMode = mode;
   const isLogin = mode === "login";
+  const isRegCustomer = mode === "register";
+  const isRegAdmin = mode === "register_admin";
+
   document.getElementById("tabLogin").className = "admin-tab-btn " + (isLogin ? "active" : "");
-  document.getElementById("tabRegister").className = "admin-tab-btn " + (!isLogin ? "active" : "");
-  document.getElementById("authModalTitle").innerHTML = isLogin 
-    ? '<i class="fa-solid fa-user-lock"></i> Đăng Nhập Tài Khoản' 
-    : '<i class="fa-solid fa-user-plus"></i> Đăng Ký Khách Mua Hàng';
-  document.getElementById("fullNameGroup").style.display = isLogin ? "none" : "block";
-  document.getElementById("authSubmitBtn").innerText = isLogin ? "Đăng Nhập Ngay" : "Tạo Tài Khoản Khách Mua";
-  document.getElementById("authHintText").innerText = isLogin 
-    ? "Mẹo: Tài khoản quản trị mặc định là admin / mật khẩu: admin123."
-    : "Đăng ký tài khoản người mua: Bạn sẽ quản lý các tài khoản đã mua an toàn, tiện lợi và không bị làm phiền bởi giao diện Admin.";
+  document.getElementById("tabRegister").className = "admin-tab-btn " + (isRegCustomer ? "active" : "");
+  const tabRegAdminEl = document.getElementById("tabRegisterAdmin");
+  if (tabRegAdminEl) tabRegAdminEl.className = "admin-tab-btn " + (isRegAdmin ? "active" : "");
+
+  if (isLogin) {
+    document.getElementById("authModalTitle").innerHTML = '<i class="fa-solid fa-user-lock"></i> Đăng Nhập Tài Khoản';
+    document.getElementById("fullNameGroup").style.display = "none";
+    document.getElementById("authSubmitBtn").innerText = "Đăng Nhập Ngay";
+    document.getElementById("authHintText").innerHTML = "Đăng nhập tài khoản của bạn để mua hàng hoặc quản lý hệ thống.";
+  } else if (isRegCustomer) {
+    document.getElementById("authModalTitle").innerHTML = '<i class="fa-solid fa-user-plus"></i> Đăng Ký Khách Mua Hàng';
+    document.getElementById("fullNameGroup").style.display = "block";
+    document.getElementById("authSubmitBtn").innerText = "Tạo Tài Khoản Khách Mua";
+    document.getElementById("authHintText").innerHTML = "Đăng ký tài khoản người mua: Bạn sẽ xem được các tài khoản đã mua an toàn, không có quyền quản trị.";
+  } else if (isRegAdmin) {
+    document.getElementById("authModalTitle").innerHTML = '<i class="fa-solid fa-crown" style="color: var(--primary);"></i> Đăng Ký Quản Trị Viên (Admin)';
+    document.getElementById("fullNameGroup").style.display = "block";
+    document.getElementById("authSubmitBtn").innerText = "Gửi Yêu Cầu Duyệt Admin";
+    document.getElementById("authHintText").innerHTML = "⚠️ <strong>Bảo mật:</strong> Đăng ký Admin cần được Chủ Shop <strong>xác nhận & duyệt trên Google Sheet</strong> thì mới đăng nhập được.";
+  }
 }
 
 function handleAuthSubmit(e) {
@@ -871,16 +885,54 @@ function handleAuthSubmit(e) {
       alert("Tên tài khoản hoặc mật khẩu không chính xác!");
       return;
     }
+
+    // KIỂM TRA DUYỆT TÀI KHOẢN ADMIN:
+    if (user.role === "admin_pending") {
+      alert("⏳ Tài khoản Admin của bạn đang ở trạng thái [CHỜ CHỦ SHOP DUYỆT TRÊN GOOGLE SHEET]!\n\nVui lòng liên hệ Chủ Shop để duyệt quyền trước khi đăng nhập.");
+      return;
+    }
+
     currentUser = user;
     localStorage.setItem("current_logged_user", JSON.stringify(currentUser));
     if (user.role === "admin") {
       localStorage.setItem("is_staff_admin_authorized", "true");
+      alert(👑 Xin chào Quản Trị Viên ! Quyền Admin đã được kích hoạt.);
+    } else {
+      localStorage.removeItem("is_staff_admin_authorized");
+      alert(Xin chào ! Đăng nhập thành công (Khách Mua Hàng).);
     }
-    alert(`Xin chào ${user.fullName || user.username}! Đăng nhập thành công với vai trò: ${user.role === 'admin' ? 'Quản Trị Viên (Admin)' : 'Khách Mua Hàng'}.`);
-  } else {
-    // Đăng ký tài khoản khách hàng mới
+  } else if (authMode === "register_admin") {
+    // ĐĂNG KÝ QUẢN TRỊ VIÊN (CẦN CHỦ SHOP DUYỆT)
     if (systemUsers.some(u => u.username.toLowerCase() === username)) {
-      alert(`Tài khoản "${username}" đã tồn tại! Vui lòng chọn tên đăng nhập khác.`);
+      alert(Tài khoản "" đã tồn tại! Vui lòng chọn tên khác.);
+      return;
+    }
+    const fullName = document.getElementById("authFullName").value.trim() || username;
+    const newAdminRequest = {
+      username: username,
+      password: password,
+      fullName: fullName,
+      role: "admin_pending", // TRẠNG THÁI CHỜ DUYỆT
+      registeredAt: new Date().toLocaleString("vi-VN")
+    };
+
+    systemUsers.push(newAdminRequest);
+    saveSystemUsers();
+
+    // Gửi tự động lên Google Sheet Cloud ghi rõ CHỜ DUYỆT ADMIN
+    sendUserToGoogleSheet({
+      fullName: fullName,
+      username: username,
+      password: password,
+      role: "ADMIN (CHỜ DUYỆT ⏳)",
+      registeredAt: new Date().toLocaleString("vi-VN")
+    });
+
+    alert(⏳ ĐÃ GỬI YÊU CẦU ĐĂNG KÝ ADMIN!\n\n- Họ tên: \n- Tài khoản: \n- Trạng thái: CHỜ CHỦ SHOP DUYỆT TRÊN GOOGLE SHEET.\n\nThông tin đã được gửi về Google Sheet của Chủ Shop.);
+  } else {
+    // Đăng ký tài khoản khách hàng thông thường
+    if (systemUsers.some(u => u.username.toLowerCase() === username)) {
+      alert(Tài khoản "" đã tồn tại! Vui lòng chọn tên đăng nhập khác.);
       return;
     }
     const fullName = document.getElementById("authFullName").value.trim() || username;
@@ -888,7 +940,7 @@ function handleAuthSubmit(e) {
       username: username,
       password: password,
       fullName: fullName,
-      role: "customer", // PHÂN BIỆT RÕ RÀNG: ĐÂY LÀ KHÁCH MUA HÀNG
+      role: "customer",
       registeredAt: new Date().toLocaleString("vi-VN")
     };
 
@@ -896,12 +948,19 @@ function handleAuthSubmit(e) {
     saveSystemUsers();
 
     // Gửi tự động lên Google Sheet Cloud
-    sendUserToGoogleSheet(newUser);
+    sendUserToGoogleSheet({
+      fullName: fullName,
+      username: username,
+      password: password,
+      role: "Khách Mua Hàng",
+      registeredAt: new Date().toLocaleString("vi-VN")
+    });
 
     currentUser = newUser;
     localStorage.setItem("current_logged_user", JSON.stringify(currentUser));
+    localStorage.removeItem("is_staff_admin_authorized");
 
-    alert(`🎉 Đăng ký thành công!\n- Khách hàng: ${fullName}\n- Tài khoản: ${username}\n- Vai trò: Khách Mua Hàng\n\n(Hệ thống đã lưu lại tài khoản này vào danh sách Quản Trị Viên).`);
+    alert(🎉 Đăng ký thành công!\n- Khách hàng: \n- Tài khoản: \n- Vai trò: Khách Mua Hàng.);
   }
 
   updateAuthUI();
@@ -993,6 +1052,7 @@ function renderAdminUsersList() {
   filtered.forEach((user, index) => {
     const tr = document.createElement("tr");
     const isAdmin = user.role === "admin";
+    const isPendingAdmin = user.role === "admin_pending";
 
     tr.innerHTML = `
       <td>${index + 1}</td>
@@ -1008,11 +1068,24 @@ function renderAdminUsersList() {
           <span style="background: rgba(254, 44, 85, 0.2); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid rgba(254, 44, 85, 0.3);">
             👑 QUẢN TRỊ VIÊN (ADMIN)
           </span>
+        ` : isPendingAdmin ? `
+          <span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
+            ⏳ CHỜ BẠN DUYỆT ADMIN
+          </span>
+          <button class="btn-detail" style="margin-left: 6px; padding: 2px 8px; font-size: 11px; background: #00d26a; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="approveAdminUser('${user.username}')">Duyệt ngay</button>
         ` : `
           <span style="background: rgba(37, 244, 238, 0.15); color: var(--secondary); padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid rgba(37, 244, 238, 0.3);">
             👤 KHÁCH MUA HÀNG
           </span>
         `}
+
+
+
+
+
+
+
+
       </td>
       <td style="font-size: 12px; color: var(--text-muted);">${user.registeredAt || 'Vừa đăng ký'}</td>
       <td>
@@ -1343,3 +1416,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+function approveAdminUser(username) {
+  if (confirm(Bạn có đồng ý CẤP QUYỀN QUẢN TRỊ VIÊN (ADMIN) cho tài khoản "" không?)) {
+    const target = systemUsers.find(u => u.username === username);
+    if (target) {
+      target.role = "admin";
+      saveSystemUsers();
+      renderAdminUsersList();
+      alert(✅ Đã phê duyệt! Tài khoản  hiện đã trở thành Quản Trị Viên.);
+    }
+  }
+}
