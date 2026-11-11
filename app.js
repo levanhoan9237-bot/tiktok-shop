@@ -845,26 +845,34 @@ function switchAuthMode(mode) {
   const isRegCustomer = mode === "register";
   const isRegAdmin = mode === "register_admin";
 
-  document.getElementById("tabLogin").className = "admin-tab-btn " + (isLogin ? "active" : "");
-  document.getElementById("tabRegister").className = "admin-tab-btn " + (isRegCustomer ? "active" : "");
-  const tabRegAdminEl = document.getElementById("tabRegisterAdmin");
-  if (tabRegAdminEl) tabRegAdminEl.className = "admin-tab-btn " + (isRegAdmin ? "active" : "");
+  const tabLogin = document.getElementById("tabLogin");
+  const tabRegister = document.getElementById("tabRegister");
+  const tabRegisterAdmin = document.getElementById("tabRegisterAdmin");
+
+  if (tabLogin) tabLogin.className = "admin-tab-btn " + (isLogin ? "active" : "");
+  if (tabRegister) tabRegister.className = "admin-tab-btn " + (isRegCustomer ? "active" : "");
+  if (tabRegisterAdmin) tabRegisterAdmin.className = "admin-tab-btn " + (isRegAdmin ? "active" : "");
+
+  const titleEl = document.getElementById("authModalTitle");
+  const fullNameGroup = document.getElementById("fullNameGroup");
+  const submitBtn = document.getElementById("authSubmitBtn");
+  const hintEl = document.getElementById("authHintText");
 
   if (isLogin) {
-    document.getElementById("authModalTitle").innerHTML = '<i class="fa-solid fa-user-lock"></i> Đăng Nhập Tài Khoản';
-    document.getElementById("fullNameGroup").style.display = "none";
-    document.getElementById("authSubmitBtn").innerText = "Đăng Nhập Ngay";
-    document.getElementById("authHintText").innerHTML = "Đăng nhập tài khoản của bạn để mua hàng hoặc quản lý hệ thống.";
+    if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-user-lock"></i> Đăng Nhập Tài Khoản';
+    if (fullNameGroup) fullNameGroup.style.display = "none";
+    if (submitBtn) submitBtn.innerText = "Đăng Nhập Ngay";
+    if (hintEl) hintEl.innerHTML = "Đăng nhập tài khoản của bạn để mua hàng hoặc quản lý hệ thống.";
   } else if (isRegCustomer) {
-    document.getElementById("authModalTitle").innerHTML = '<i class="fa-solid fa-user-plus"></i> Đăng Ký Khách Mua Hàng';
-    document.getElementById("fullNameGroup").style.display = "block";
-    document.getElementById("authSubmitBtn").innerText = "Tạo Tài Khoản Khách Mua";
-    document.getElementById("authHintText").innerHTML = "Đăng ký tài khoản người mua: Bạn sẽ xem được các tài khoản đã mua an toàn, không có quyền quản trị.";
+    if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> Đăng Ký Khách Mua Hàng';
+    if (fullNameGroup) fullNameGroup.style.display = "block";
+    if (submitBtn) submitBtn.innerText = "Tạo Tài Khoản Khách Mua";
+    if (hintEl) hintEl.innerHTML = "Đăng ký tài khoản người mua: Bạn sẽ xem được các tài khoản đã mua an toàn, không có quyền quản trị.";
   } else if (isRegAdmin) {
-    document.getElementById("authModalTitle").innerHTML = '<i class="fa-solid fa-crown" style="color: var(--primary);"></i> Đăng Ký Quản Trị Viên (Admin)';
-    document.getElementById("fullNameGroup").style.display = "block";
-    document.getElementById("authSubmitBtn").innerText = "Gửi Yêu Cầu Duyệt Admin";
-    document.getElementById("authHintText").innerHTML = "⚠️ <strong>Bảo mật:</strong> Đăng ký Admin cần được Chủ Shop <strong>xác nhận & duyệt trên Google Sheet</strong> thì mới đăng nhập được.";
+    if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-crown" style="color: var(--primary);"></i> Đăng Ký Quản Trị Viên (Admin)';
+    if (fullNameGroup) fullNameGroup.style.display = "block";
+    if (submitBtn) submitBtn.innerText = "Gửi Yêu Cầu Duyệt Admin";
+    if (hintEl) hintEl.innerHTML = "⚠️ <strong>Yêu cầu bảo mật:</strong> Đăng ký Admin cần được Chủ Shop <strong>xác nhận & duyệt trên Google Sheet</strong> thì mới đăng nhập được.";
   }
 }
 
@@ -888,7 +896,7 @@ function handleAuthSubmit(e) {
 
     // KIỂM TRA DUYỆT TÀI KHOẢN ADMIN:
     if (user.role === "admin_pending") {
-      alert("⏳ Tài khoản Admin của bạn đang ở trạng thái [CHỜ CHỦ SHOP DUYỆT TRÊN GOOGLE SHEET]!\n\nVui lòng liên hệ Chủ Shop để duyệt quyền trước khi đăng nhập.");
+      alert("⏳ Tài khoản Admin của bạn đang ở trạng thái [CHỜ CHỦ SHOP DUYỆT TRÊN GOOGLE SHEET]!\n\nVui lòng liên hệ Chủ Shop duyệt trước khi đăng nhập.");
       return;
     }
 
@@ -896,15 +904,15 @@ function handleAuthSubmit(e) {
     localStorage.setItem("current_logged_user", JSON.stringify(currentUser));
     if (user.role === "admin") {
       localStorage.setItem("is_staff_admin_authorized", "true");
-      alert(👑 Xin chào Quản Trị Viên ! Quyền Admin đã được kích hoạt.);
+      alert("👑 Xin chào Quản Trị Viên " + (user.fullName || user.username) + "! Quyền Admin đã được mở khóa.");
     } else {
       localStorage.removeItem("is_staff_admin_authorized");
-      alert(Xin chào ! Đăng nhập thành công (Khách Mua Hàng).);
+      alert("Xin chào " + (user.fullName || user.username) + "! Đăng nhập thành công (Khách Mua Hàng).");
     }
   } else if (authMode === "register_admin") {
     // ĐĂNG KÝ QUẢN TRỊ VIÊN (CẦN CHỦ SHOP DUYỆT)
     if (systemUsers.some(u => u.username.toLowerCase() === username)) {
-      alert(Tài khoản "" đã tồn tại! Vui lòng chọn tên khác.);
+      alert("Tài khoản '" + username + "' đã tồn tại! Vui lòng chọn tên khác.");
       return;
     }
     const fullName = document.getElementById("authFullName").value.trim() || username;
@@ -928,11 +936,11 @@ function handleAuthSubmit(e) {
       registeredAt: new Date().toLocaleString("vi-VN")
     });
 
-    alert(⏳ ĐÃ GỬI YÊU CẦU ĐĂNG KÝ ADMIN!\n\n- Họ tên: \n- Tài khoản: \n- Trạng thái: CHỜ CHỦ SHOP DUYỆT TRÊN GOOGLE SHEET.\n\nThông tin đã được gửi về Google Sheet của Chủ Shop.);
+    alert("⏳ ĐÃ GỬI YÊU CẦU ĐĂNG KÝ ADMIN!\n\n- Họ tên: " + fullName + "\n- Tài khoản: " + username + "\n- Trạng thái: CHỜ CHỦ SHOP DUYỆT TRÊN GOOGLE SHEET.\n\nThông tin đã được gửi về Google Sheet của Chủ Shop.");
   } else {
     // Đăng ký tài khoản khách hàng thông thường
     if (systemUsers.some(u => u.username.toLowerCase() === username)) {
-      alert(Tài khoản "" đã tồn tại! Vui lòng chọn tên đăng nhập khác.);
+      alert("Tài khoản '" + username + "' đã tồn tại! Vui lòng chọn tên đăng nhập khác.");
       return;
     }
     const fullName = document.getElementById("authFullName").value.trim() || username;
@@ -960,7 +968,7 @@ function handleAuthSubmit(e) {
     localStorage.setItem("current_logged_user", JSON.stringify(currentUser));
     localStorage.removeItem("is_staff_admin_authorized");
 
-    alert(🎉 Đăng ký thành công!\n- Khách hàng: \n- Tài khoản: \n- Vai trò: Khách Mua Hàng.);
+    alert("🎉 Đăng ký thành công!\n- Khách hàng: " + fullName + "\n- Tài khoản: " + username + "\n- Vai trò: Khách Mua Hàng.");
   }
 
   updateAuthUI();
@@ -1057,7 +1065,7 @@ function renderAdminUsersList() {
     tr.innerHTML = `
       <td>${index + 1}</td>
       <td>
-        <strong style="color: ${isAdmin ? 'var(--primary)' : '#fff'}; font-size: 14px;">
+        <strong style="color: ${isAdmin ? 'var(--primary)' : isPendingAdmin ? '#f59e0b' : '#fff'}; font-size: 14px;">
           ${user.fullName || 'Khách vãng lai'}
         </strong>
       </td>
@@ -1070,34 +1078,38 @@ function renderAdminUsersList() {
           </span>
         ` : isPendingAdmin ? `
           <span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
-            ⏳ CHỜ BẠN DUYỆT ADMIN
+            ⏳ CHỜ DUYỆT ADMIN
           </span>
-          <button class="btn-detail" style="margin-left: 6px; padding: 2px 8px; font-size: 11px; background: #00d26a; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="approveAdminUser('${user.username}')">Duyệt ngay</button>
+          <button class="btn-detail" style="margin-left: 6px; padding: 3px 8px; font-size: 11px; background: #00d26a; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="approveAdminUser('${user.username}')">Duyệt</button>
         ` : `
           <span style="background: rgba(37, 244, 238, 0.15); color: var(--secondary); padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid rgba(37, 244, 238, 0.3);">
             👤 KHÁCH MUA HÀNG
           </span>
         `}
-
-
-
-
-
-
-
-
       </td>
       <td style="font-size: 12px; color: var(--text-muted);">${user.registeredAt || 'Vừa đăng ký'}</td>
       <td>
         ${!isAdmin ? `
-          <button class="btn-icon-danger" onclick="deleteUser('${user.username}')" title="Xóa tài khoản khách này">
-            <i class="fa-solid fa-trash"></i> Xóa
+          <button class="btn-icon-danger" onclick="deleteUser('${user.username}')" title="Xóa tài khoản này">
+            <i class="fa-solid fa-trash"></i>
           </button>
         ` : '<span style="color: var(--text-muted); font-size: 11px; font-style: italic;">Mặc định</span>'}
       </td>
     `;
     tbody.appendChild(tr);
   });
+}
+
+function approveAdminUser(username) {
+  if (confirm(`Bạn có đồng ý CẤP QUYỀN QUẢN TRỊ VIÊN (ADMIN) cho tài khoản "${username}" không?`)) {
+    const target = systemUsers.find(u => u.username === username);
+    if (target) {
+      target.role = "admin";
+      saveSystemUsers();
+      renderAdminUsersList();
+      alert(`✅ Đã phê duyệt thành công! Tài khoản ${username} hiện đã là Quản Trị Viên.`);
+    }
+  }
 }
 
 function deleteUser(username) {
@@ -1416,14 +1428,3 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-function approveAdminUser(username) {
-  if (confirm(Bạn có đồng ý CẤP QUYỀN QUẢN TRỊ VIÊN (ADMIN) cho tài khoản "" không?)) {
-    const target = systemUsers.find(u => u.username === username);
-    if (target) {
-      target.role = "admin";
-      saveSystemUsers();
-      renderAdminUsersList();
-      alert(✅ Đã phê duyệt! Tài khoản  hiện đã trở thành Quản Trị Viên.);
-    }
-  }
-}
