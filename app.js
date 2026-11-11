@@ -791,12 +791,7 @@ function updateAuthUI() {
   const paramVal = urlParams.get("admin");
   const hasAdminKeyInUrl = paramVal === "hoan_admin" || paramVal === "true" || paramVal === "1";
 
-  if (hasAdminKeyInUrl) {
-    localStorage.setItem("is_staff_admin_authorized", "true");
-  }
-
-  const isStaffAuthorized = localStorage.getItem("is_staff_admin_authorized") === "true";
-  const isCustomerRole = currentUser && currentUser.role === "customer";
+  const isAdminAccount = currentUser && currentUser.role === "admin";
 
   if (currentUser) {
     userDisplayName.innerText = currentUser.fullName || currentUser.username;
@@ -805,13 +800,15 @@ function updateAuthUI() {
   }
 
   // NÚT ADMIN:
-  // - Nếu là khách hàng đăng ký (role == customer) -> ẨN ĐI
-  // - Mặc định cho chủ web hoặc có quyền link bí mật -> HIỆN LÊN RÕ RÀNG
+  // CHỈ HIỂN THỊ KHI:
+  // 1. Đường link có chứa mã bí mật: ?admin=true (dành cho chủ shop & nhân viên)
+  // 2. HOẶC đăng nhập chính xác bằng tài khoản admin (admin / admin123)
+  // TUYỆT ĐỐI ẨN đối với khách hàng thông thường truy cập web!
   if (adminBtn) {
-    if (isCustomerRole && !isStaffAuthorized) {
-      adminBtn.style.display = "none";
-    } else {
+    if (hasAdminKeyInUrl || isAdminAccount) {
       adminBtn.style.display = "inline-flex";
+    } else {
+      adminBtn.style.display = "none";
     }
   }
 }
