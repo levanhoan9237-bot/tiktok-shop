@@ -1,3 +1,8 @@
+﻿function closeCheckoutModal() {
+  if (timerInterval) clearInterval(timerInterval);
+  if (checkBankInterval) clearInterval(checkBankInterval);
+  closeModal("checkoutModal");
+}
 // Dữ liệu tài khoản TikTok mặc định
 const initialAccounts = [
   {
