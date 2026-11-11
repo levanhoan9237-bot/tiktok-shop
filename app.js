@@ -719,7 +719,7 @@ function copyAccountCredentials() {
 
 // Cấu hình Google Sheets Sync
 const GOOGLE_SHEET_ID = "1XPtKiCtq-VMmfD-ua0mITpeBQdRapbcvzrut05UwQFw";
-let googleAppsScriptUrl = localStorage.getItem("tiktok_google_sheet_webhook") || "";
+let googleAppsScriptUrl = localStorage.getItem("tiktok_google_sheet_webhook") || "https://script.google.com/macros/s/AKfycbyExqZ19T-lSTpN0LTGGv0XLiK0sOWokXKsS1_Zl4_sU8y3FpRq8kxzIinyLnf6ij-T2A/exec";
 
 function saveGoogleScriptUrl(url) {
   googleAppsScriptUrl = url.trim();
